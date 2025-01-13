@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vehicle Data</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .pagination button {
+            padding: 10px;
+            margin: 0 5px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+        }
+        .pagination button:disabled {
+            background-color: #ccc;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Vehicle Data</h1>
+    
+    <!-- Table to display vehicle data -->
+    <table id="vehicleDataTable">
+        <thead>
+            <tr>
+                <th>Current (Amps)</th>
+                <th>Voltage (Volts)</th>
+                <th>Power (Watts)</th>
+                <th>Vehicle On/Off</th>
+                <th>Timestamp</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Data will be dynamically populated here -->
+        </tbody>
+    </table>
+
+    <!-- Pagination controls -->
+    <div class="pagination">
+        <button id="prevPage" onclick="changePage('prev')" disabled>Previous</button>
+        <button id="nextPage" onclick="changePage('next')">Next</button>
+    </div>
+
+    <script>
+        let currentPage = 1;
+        const limit = 10;
+
+        // Function to fetch vehicle data based on page
+        async function fetchVehicleData(page) {
+            const response = await fetch(`http://localhost:3001/api/vehicleData?page=${page}&limit=${limit}`);
+            const data = await response.json();
+            
+            // Populate the table with data
+            const tableBody = document.getElementById("vehicleDataTable").getElementsByTagName("tbody")[0];
+            tableBody.innerHTML = ''; // Clear previous data
+            data.data.forEach(record => {
+                const row = tableBody.insertRow();
+                row.innerHTML = `
+                    <td>${record.current}</td>
+                    <td>${record.voltage}</td>
+                    <td>${record.power}</td>
+                    <td>${record.vehicleOnOffState ? 'ON' : 'OFF'}</td>
+                    <td>${new Date(record.timestamp).toLocaleString()}</td>
+                `;
+            });
+
+            // Handle pagination buttons
+            document.getElementById("prevPage").disabled = page === 1;
+            document.getElementById("nextPage").disabled = page === data.pagination.totalPages;
+        }
+
+        // Change page based on button click
+        function changePage(direction) {
+            if (direction === 'next') {
+                currentPage++;
+            } else if (direction === 'prev') {
+                currentPage--;
+            }
+            fetchVehicleData(currentPage);
+        }
+
+        // Initially load data for the first page
+        fetchVehicleData(currentPage);
+    </script>
+    
+</body>
+</html>
