@@ -66,8 +66,8 @@
         const limit = 10;
 
         // Function to fetch vehicle data based on page
-        async function fetchVehicleData(page) {
-            const response = await fetch(`http://localhost:3001/api/vehicleData?page=${page}&limit=${limit}`);
+        async function fetchVehicleData(page) {//https://cmma1.onrender.com
+            const response = await fetch(`https://cmma1.onrender.com/api/vehicleData?page=${page}&limit=${limit}`);
             const data = await response.json();
             
             // Populate the table with data
